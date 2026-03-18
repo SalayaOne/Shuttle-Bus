@@ -197,7 +197,7 @@
         navigator.clipboard.writeText(msg)
           .then(() => alert(foundData ? "✅ คัดลอกรายการรอบปัจจุบันแล้ว" : "ℹ️ ไม่เจอรอบวิ่ง: คัดลอกข้อความ 'ไม่มีรายการรับ' ให้แล้ว"))
           .catch(() => alert("❌ คัดลอกไม่สำเร็จ กรุณาลองใหม่"));
-      }
+      }}
 
     loadData();
     setInterval(loadData, 15000);
