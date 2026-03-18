@@ -186,10 +186,10 @@
         }
       });
 
-      const link = "📍 Points : https://salayaone.github.io/Shuttle-Bus/";
+      const link = "Track bus : https://salayaone.github.io/Shuttle-Bus/";
       const msg = foundData
-        ? "📍 รายการรับลูกบ้านรอบปัจจุบัน | Current Pickup Schedule for Residents" + nl + "------------------" + nl + listText + "------------------" + nl + "(as of " + timeNowStr + ")" + nl + link
-        : "📍 รายการรับลูกบ้านรอบปัจจุบัน | Current Pickup Schedule for Residents" + nl + "------------------" + nl + "ไม่มีจุดรับที่กำหนดไว้ในรอบนี้ครับ | No pickup locations are scheduled for this round." + nl + "------------------" + nl + "(as of " + timeNowStr + ")" + nl + link;
+        ? "📍Current Pickup Schedule for Residents" + nl + "------------------" + nl + listText + "------------------" + nl + "(as of " + timeNowStr + ")" + nl + link
+        : "📍Current Pickup Schedule for Residents" + nl + "------------------" + nl + "ไม่มีจุดรับที่กำหนดไว้ในรอบนี้ครับ | No pickup locations are scheduled for this round." + nl + "------------------" + nl + "(as of " + timeNowStr + ")" + nl + link;
 
       if (window.ReactNativeWebView) {
         window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'COPY', text: msg, found: foundData }));
