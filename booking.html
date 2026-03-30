@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>จองรถ Shuttle - Salaya One</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&family=Inter:wght@400;500;600&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-color: #F3F4F6;
+            --card-bg: #ffffff;
+            --text-main: #1F2937;
+            --text-sub: #9CA3AF;
+            --line-inactive: #E5E7EB;
+            --s1-color: #3B82F6;
+            --s1-light: #DBEAFE;
+            --success: #10B981;
+            --danger: #EF4444;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Kanit', sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        .card {
+            background: var(--card-bg);
+            width: 100%;
+            max-width: 450px;
+            border-radius: 24px;
+            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.1);
+            padding: 25px;
+            height: fit-content;
+        }
+
+        .header {
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--line-inactive);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .header a {
+            color: var(--text-sub);
+            font-size: 18px;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .header a:hover {
+            color: var(--s1-color);
+        }
+
+        .header h2 {
+            margin: 0;
+            font-size: 20px;
+            color: var(--text-main);
+            font-weight: 700;
+        }
+
+        .section-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-sub);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 8px;
+            margin-top: 20px;
+        }
+
+        .input-field {
+            width: 100%;
+            border: 1.5px solid var(--line-inactive);
+            border-radius: 12px;
+            padding: 12px 16px;
+            font-size: 15px;
+            font-family: 'Inter', 'Kanit', sans-serif;
+            color: var(--text-main);
+            background: #fff;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            appearance: none;
+        }
+
+        .input-field:focus {
+            border-color: var(--s1-color);
+            box-shadow: 0 0 0 3px var(--s1-light);
+        }
+
+        select.input-field {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%239CA3AF' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 14px center;
+            padding-right: 40px;
+            cursor: pointer;
+        }
+
+
+
+        .btn-submit {
+            width: 100%;
+            background: var(--s1-color);
+            color: white;
+            border: none;
+            border-radius: 14px;
+            padding: 15px;
+            font-size: 16px;
+            font-family: 'Kanit', sans-serif;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 24px;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-submit:hover:not(:disabled) {
+            background: #2563EB;
+            box-shadow: 0 8px 20px rgba(59, 130, 246, 0.35);
+            transform: translateY(-1px);
+        }
+
+        .btn-submit:disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(80px);
+            background: var(--text-main);
+            color: white;
+            padding: 14px 22px;
+            border-radius: 14px;
+            font-size: 14px;
+            font-family: 'Kanit', sans-serif;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            transition: transform 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 999;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .toast.success {
+            background: var(--success);
+        }
+
+        .toast.error {
+            background: var(--danger);
+        }
+
+        .summary-box {
+            background: var(--s1-light);
+            border: 1.5px solid #BFDBFE;
+            border-radius: 14px;
+            padding: 14px 16px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .summary-box.show {
+            display: block;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            padding: 3px 0;
+        }
+
+        .summary-row .label {
+            color: var(--text-sub);
+        }
+
+        .summary-row .value {
+            color: var(--text-main);
+            font-weight: 600;
+        }
+
+        .cutoff-note {
+            font-size: 12px;
+            color: var(--text-sub);
+            margin-top: 6px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .cutoff-note i {
+            color: #F59E0B;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="card">
+        <div class="header">
+            <a href="index.html" title="กลับหน้าหลัก"><i class="fas fa-arrow-left"></i></a>
+            <h2>จองรถ Shuttle</h2>
+        </div>
+
+        <div class="section-label">หมายเลขห้อง</div>
+        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px;">
+            <select id="roomType" class="input-field" onchange="onRoomChange()">
+                <option value="">ตึก</option>
+                <option>L</option>
+                <option>S</option>
+            </select>
+            <select id="roomFloor" class="input-field" onchange="onRoomChange()">
+                <option value="">ชั้น</option>
+                <option>2</option>
+                <option>3</option>
+                <option>4</option>
+                <option>5</option>
+                <option>6</option>
+                <option>7</option>
+            </select>
+            <select id="roomNum" class="input-field" onchange="onRoomChange()">
+                <option value="">ห้อง</option>
+                <option>01</option>
+                <option>02</option>
+                <option>03</option>
+                <option>04</option>
+                <option>05</option>
+                <option>06</option>
+                <option>07</option>
+                <option>08</option>
+                <option>09</option>
+                <option>10</option>
+                <option>11</option>
+                <option>12</option>
+                <option>13</option>
+                <option>14</option>
+                <option>15</option>
+                <option>16</option>
+                <option>17</option>
+                <option>18</option>
+                <option>19</option>
+                <option>20</option>
+                <option>21</option>
+                <option>22</option>
+                <option>23</option>
+            </select>
+        </div>
+
+        <div class="section-label">จุดรับ</div>
+        <select id="locationSelect" class="input-field">
+            <option value="">— เลือกจุดรับ —</option>
+            <option>1. วิทยาลัยดุริยางคศิลป์ (College of Music)</option>
+            <option>2.1 คณะวิทยาศาสตร์ 3 (Faculty of Science 3)</option>
+            <option>2.2 คณะวิทยาศาสตร์ 2 (Faculty of Science 2)</option>
+            <option>3. คณะสังคมศาสตร์ และมนุษย์ศาสตร์ (Faculty of Social Sciences and Humanities)</option>
+            <option>4. อาคารใหม่ (New MUIC Building / MUIC Building 2)</option>
+            <option>5. อาคารเก่า (Old MUIC Building / MUIC Building 1)</option>
+            <option>6. สำนักงานอธิการบดี (Office of the President)</option>
+            <option>7. คณะวิศวกรรมศาสตร์ (Faculty of Engineering)</option>
+            <option>8. สาขาวิชาเทคโนโลยีสารสนเทศ และการสื่อสาร (ICT)</option>
+            <option>9. คณะเทคนิคการแพทย์ (Faculty of Medical Technology)</option>
+            <option>10. อาคารเทคนิคการแพทย์ และกายภาพบำบัด (Physical and Medical Technology Building)</option>
+            <option>11. คณะศิลปศาสตร์ (Faculty of Liberal Arts)</option>
+            <option>12. สถานีรถมินิบัสพลังงานไฟฟ้า (Electric Mini-Bus)</option>
+            <option>13. คณะสัตวแพทยศาสตร์ (Faculty of Veterinary Science)</option>
+            <option>14. MUIDS</option>
+        </select>
+
+        <div class="section-label">รอบเวลาที่ต้องการ (รถออกจาก Salaya One)</div>
+        <div class="cutoff-note"><i class="fas fa-clock"></i> ปิดรับจองก่อนรถออก 5 นาที</div>
+        <select id="timeSelect" class="input-field" style="margin-top:8px;" onchange="onTimeChange()">
+            <option value="">— เลือกรอบเวลา —</option>
+        </select>
+
+        <div class="summary-box" id="summaryBox">
+            <div class="summary-row">
+                <span class="label">ห้อง</span>
+                <span class="value" id="sum-room">—</span>
+            </div>
+            <div class="summary-row">
+                <span class="label">จุดรับ</span>
+                <span class="value" id="sum-loc">—</span>
+            </div>
+            <div class="summary-row">
+                <span class="label">รอบเวลา</span>
+                <span class="value" id="sum-time">—</span>
+            </div>
+        </div>
+
+        <button class="btn-submit" id="submitBtn" disabled onclick="submitBooking()">
+            <i class="fas fa-check-circle"></i> ยืนยันการจอง
+        </button>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // =====================================================
+        // ⚙️  วาง URL ของ Apps Script Web App ที่นี่
+        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby1hzyIjn2UNxTpXqAUIV6I1o6XfCBJYe-YPGRZGBBa0jHm5ITcIw8Jvj5ZvIsN2jtYCA/exec';
+        // =====================================================
+
+        // สร้าง Time Slots 7:00 - 18:30 ทุกครึ่งชั่วโมง
+        const ALL_SLOTS = [];
+        for (let h = 7; h <= 18; h++) {
+            ALL_SLOTS.push(`${String(h).padStart(2, '0')}:00`);
+            if (h < 18) ALL_SLOTS.push(`${String(h).padStart(2, '0')}:30`);
+        }
+        ALL_SLOTS.push('18:30');
+
+        let selectedTime = null;
+
+        function getNowBangkok() {
+            return new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Bangkok' }));
+        }
+
+        function buildTimeDropdown() {
+            const sel = document.getElementById('timeSelect');
+            const prev = sel.value;
+            sel.innerHTML = '<option value="">— เลือกรอบเวลา —</option>';
+
+            const now = getNowBangkok();
+            const nowMin = now.getHours() * 60 + now.getMinutes();
+
+            ALL_SLOTS.forEach(slot => {
+                const [h, m] = slot.split(':').map(Number);
+                const isPast = nowMin >= (h * 60 + m) - 5;
+                if (isPast) return;
+                const opt = document.createElement('option');
+                opt.value = slot;
+                opt.textContent = slot;
+                sel.appendChild(opt);
+            });
+
+            // คืนค่าเดิมถ้ายังไม่ past
+            if (prev) {
+                const [h, m] = prev.split(':').map(Number);
+                if (nowMin < (h * 60 + m) - 5) {
+                    sel.value = prev;
+                    selectedTime = prev;
+                } else {
+                    selectedTime = null;
+                    checkForm();
+                    updateSummary();
+                }
+            }
+        }
+
+        function onTimeChange() {
+            selectedTime = document.getElementById('timeSelect').value || null;
+            updateSummary();
+            checkForm();
+        }
+
+        function getRoom() {
+            const t = document.getElementById('roomType').value;
+            const f = document.getElementById('roomFloor').value;
+            const n = document.getElementById('roomNum').value;
+            return (t && f && n) ? t + f + n : '';
+        }
+
+        function onRoomChange() { updateSummary(); checkForm(); }
+        document.getElementById('locationSelect').addEventListener('change', () => { updateSummary(); checkForm(); });
+
+        function checkForm() {
+            const room = getRoom();
+            const loc = document.getElementById('locationSelect').value;
+            document.getElementById('submitBtn').disabled = !(room && loc && selectedTime);
+        }
+
+        function updateSummary() {
+            const room = getRoom();
+            const loc = document.getElementById('locationSelect').value;
+            const box = document.getElementById('summaryBox');
+            if (room || loc || selectedTime) {
+                box.classList.add('show');
+                document.getElementById('sum-room').textContent = room || '—';
+                document.getElementById('sum-loc').textContent = loc || '—';
+                document.getElementById('sum-time').textContent = selectedTime || '—';
+            } else {
+                box.classList.remove('show');
+            }
+        }
+
+        async function submitBooking() {
+            const room = getRoom();
+            const loc = document.getElementById('locationSelect').value;
+            const time = selectedTime;
+            if (!room || !loc || !time) return;
+
+            // Cutoff re-check
+            const now = getNowBangkok();
+            const nowMin = now.getHours() * 60 + now.getMinutes();
+            const [h, m] = time.split(':').map(Number);
+            if (nowMin >= (h * 60 + m) - 5) {
+                showToast('⛔ รอบนี้ปิดรับจองแล้ว', 'error');
+                buildTimeDropdown();
+                selectedTime = null;
+                document.getElementById('timeSelect').value = '';
+                checkForm();
+                return;
+            }
+
+            const btn = document.getElementById('submitBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> กำลังส่งข้อมูล...';
+
+            const d = now;
+            const timestamp = `${d.getDate()}/${d.getMonth() + 1}/${d.getFullYear()}, ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}:${String(d.getSeconds()).padStart(2, '0')}`;
+
+            try {
+                await fetch(APPS_SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ timestamp, room, location: loc, time: "'" + time })
+                });
+
+                showToast('✅ จองสำเร็จแล้ว!', 'success');
+                setTimeout(() => {
+                    document.getElementById('roomType').value = '';
+                    document.getElementById('roomFloor').value = '';
+                    document.getElementById('roomNum').value = '';
+                    document.getElementById('locationSelect').value = '';
+                    document.getElementById('timeSelect').value = '';
+                    selectedTime = null;
+                    buildTimeDropdown();
+                    document.getElementById('summaryBox').classList.remove('show');
+                    btn.innerHTML = '<i class="fas fa-check-circle"></i> ยืนยันการจอง';
+                    btn.disabled = true;
+                }, 1500);
+
+            } catch (err) {
+                showToast('❌ เกิดข้อผิดพลาด ลองใหม่อีกครั้ง', 'error');
+                btn.innerHTML = '<i class="fas fa-check-circle"></i> ยืนยันการจอง';
+                btn.disabled = false;
+            }
+        }
+
+        function showToast(msg, type = '') {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.className = 'toast ' + type + ' show';
+            setTimeout(() => t.classList.remove('show'), 3500);
+        }
+
+        buildTimeDropdown();
+        setInterval(buildTimeDropdown, 60000);
+    </script>
+</body>
+
+</html>
