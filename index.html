@@ -40,7 +40,6 @@
             box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.1);
             padding: 25px;
             position: relative;
-            /* overflow: hidden; เอาออกเพื่อให้ Tooltip หรือเงาไม่ขาด */
         }
 
         .header {
@@ -333,31 +332,35 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        const stationNames = [
-            "Salaya One Hotel & Serviced Apartment",
-            "1. College of Music",
-            "2.1 Faculty of Science 3",
-            "2.2 Faculty of Science 2",
-            "3. Faculty of Social Sciences and Humanities",
-            "4. New MUIC Building",
-            "5. Old MUIC Building",
-            "6. Office of President",
-            "7. Faculty of Engineering",
-            "8. ICT",
-            "9. Faculty of Medical Technology",
-            "10. Physical and Medical Technology Building",
-            "11. Faculty of Liberal Arts",
-            "12. Electric Mini-Bus",
-            "13. Faculty of Veterinary Science",
-            "14. MUIDS"
-        ];
-
         const container = document.getElementById('stops-container');
+        let stationData = []; // เก็บข้อมูลป้ายที่ดึงมาจาก Firebase
+        let lastData = { van1: { active: false }, van2: { active: false } }; // เก็บ state รถ
 
-        // Render HTML
+        // 1. ดึงข้อมูลป้ายจอดรถ (Stations) จาก Firebase แบบ Realtime
+        db.ref('stations').on('value', (snapshot) => {
+            const rawStations = snapshot.val() || [];
+
+            // กรองเอาเฉพาะป้ายที่แอดมินเปิดใช้งานอยู่ (active: true หรือไม่มีค่า active)
+            stationData = rawStations.filter(s => s && s.active !== false);
+
+            // สร้าง UI ป้ายรถเมล์ใหม่
+            renderTimeline();
+
+            // ถ้ารถมีข้อมูลอยู่แล้ว ให้ขยับรถไปที่ป้ายให้ถูกต้องทันที
+            if (lastData.van1 && lastData.van1.active) updateState('van1', lastData.van1);
+            if (lastData.van2 && lastData.van2.active) updateState('van2', lastData.van2);
+        });
+
+        // 2. ฟังก์ชันสร้าง HTML ของป้ายแต่ละป้าย
         function renderTimeline() {
             container.innerHTML = '';
-            stationNames.forEach((name, index) => {
+
+            if (stationData.length === 0) {
+                container.innerHTML = '<p style="text-align:center; color:gray; font-size:14px;">กำลังโหลดข้อมูลสถานี...</p>';
+                return;
+            }
+
+            stationData.forEach((station, index) => {
                 container.innerHTML += `
                     <div class="stop-item" id="row-${index}">
                         <div class="tracks-box">
@@ -378,17 +381,17 @@
                             </div>
                         </div>
                         <div class="content">
-                            <h3>${name}</h3>
+                            <h3>${station.name}</h3>
                         </div>
                     </div>
                 `;
             });
-            // คำนวณเส้นพื้นหลัง (สีเทา) ครั้งแรก
+
+            // รอให้ HTML เรนเดอร์เสร็จก่อน 100ms แล้วค่อยคำนวณวาดเส้นความสูง
             setTimeout(drawGrayRails, 100);
         }
-        renderTimeline();
 
-        // ฟังก์ชันวาดเส้นแบบแม่นยำ (คำนวณจาก Center ของ Dot)
+        // 3. ฟังก์ชันวาดเส้นความสูงให้พอดีกับจุดบน-ล่าง
         function setRailPosition(railElement, startDotId, endDotId) {
             const startEl = document.getElementById(startDotId);
             const endEl = document.getElementById(endDotId);
@@ -403,7 +406,7 @@
                 const startTop = (startRect.top - containerRect.top) + (startRect.height / 2);
 
                 // ความสูง (Height) = ระยะห่างระหว่างกึ่งกลางจุดเริ่ม กับ กึ่งกลางจุดจบ
-                const distance = (endRect.top - startRect.top); // ระยะห่าง Y
+                const distance = (endRect.top - startRect.top);
 
                 railElement.style.top = `${startTop}px`;
                 railElement.style.height = `${distance}px`;
@@ -411,26 +414,27 @@
         }
 
         function drawGrayRails() {
-            const lastIdx = stationNames.length - 1;
+            if (stationData.length < 2) return;
+            const lastIdx = stationData.length - 1;
             // เส้นเทา Track 1: จากจุดแรก -> จุดสุดท้าย
             setRailPosition(document.getElementById('gray-rail-1'), 'dw-v1-0', `dw-v1-${lastIdx}`);
             // เส้นเทา Track 2: จากจุดแรก -> จุดสุดท้าย
             setRailPosition(document.getElementById('gray-rail-2'), 'dw-v2-0', `dw-v2-${lastIdx}`);
         }
 
-        // เก็บ state ล่าสุดไว้เพื่อ redraw ตอนจอ resize
-        let lastData = { van1: { active: false }, van2: { active: false } };
-
+        // 4. ฟังก์ชันอัปเดตตำแหน่งรถและเส้นสี
         function updateState(vanId, data) {
-            const currentStop = data.currentStop || 0;
+            const currentStop = data.currentStop || 0; // <--- เปลี่ยนเป็น CurrentStop
+            // const currentStop = data.NewCurrentStop || 0; // <--- เปลี่ยนเป็น NewCurrentStop
             const isActive = data.active;
-            const totalStops = stationNames.length;
+            const totalStops = stationData.length;
 
-            // 1. วาดเส้น Progress (สี)
+            if (totalStops === 0) return;
+
+            // วาดเส้น Progress (สี)
             const progressEl = document.getElementById(vanId === 'van1' ? 'prog-rail-1' : 'prog-rail-2');
 
-            if (isActive && currentStop >= 0) {
-                // วาดจากจุด 0 ถึง จุดปัจจุบัน
+            if (isActive && currentStop >= 0 && currentStop < totalStops) {
                 setRailPosition(progressEl,
                     vanId === 'van1' ? 'dw-v1-0' : 'dw-v2-0',
                     vanId === 'van1' ? `dw-v1-${currentStop}` : `dw-v2-${currentStop}`
@@ -439,12 +443,14 @@
                 progressEl.style.height = '0px';
             }
 
-            // 2. จัดการ Dots และ Bus Icon
+            // จัดการ Dots และ Bus Icon
             for (let i = 0; i < totalStops; i++) {
                 const dot = document.getElementById(vanId === 'van1' ? `dot-v1-${i}` : `dot-v2-${i}`);
                 const bus = document.getElementById(vanId === 'van1' ? `bus-v1-${i}` : `bus-v2-${i}`);
                 const row = document.getElementById(`row-${i}`);
                 const activeClass = vanId === 'van1' ? 'active-1' : 'active-2';
+
+                if (!dot || !bus) continue;
 
                 // Reset
                 dot.classList.remove(activeClass);
@@ -455,7 +461,7 @@
                     if (i < currentStop) {
                         dot.classList.add(activeClass); // ผ่านมาแล้ว
                     } else if (i === currentStop) {
-                        dot.style.opacity = '0'; // ซ่อนจุด เพื่อโชว์รถ
+                        dot.style.opacity = '0'; // ซ่อนจุด เพื่อโชว์ไอคอนรถ
                         bus.classList.add('show');
                         row.classList.add('stop-highlight');
                     }
@@ -463,23 +469,24 @@
             }
         }
 
-        // Firebase Logic
+        // 5. ดึงข้อมูลรถจาก Firebase
         db.ref('shuttles').on('value', (snapshot) => {
             const data = snapshot.val();
-            // Clear highlights
+
+            // Clear highlights 
             document.querySelectorAll('.stop-item').forEach(el => el.classList.remove('stop-highlight'));
 
             if (data) {
-                lastData = data; // เก็บค่าไว้ใช้ตอน resize
+                lastData = data;
                 if (data.van1) updateState('van1', data.van1);
                 if (data.van2) updateState('van2', data.van2);
             }
         });
 
-        // Event: Resize หน้าจอ (สำคัญมาก เพื่อให้เส้นไม่เบี้ยว)
+        // 6. เมื่อหมุนจอหรือ Resize บราวเซอร์ ให้คำนวณความสูงเส้นใหม่
         window.addEventListener('resize', () => {
-            drawGrayRails(); // วาดเส้นเทาใหม่
-            if (lastData.van1) updateState('van1', lastData.van1); // วาดเส้นสีใหม่
+            drawGrayRails();
+            if (lastData.van1) updateState('van1', lastData.van1);
             if (lastData.van2) updateState('van2', lastData.van2);
         });
 
