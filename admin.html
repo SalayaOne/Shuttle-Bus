@@ -113,6 +113,10 @@
                 </div>
 
                 <div class="relative z-10 flex items-center gap-2">
+                    <button onclick="event.stopPropagation(); toggleTimelineModal();" class="bg-white/10 hover:bg-white/20 border border-white/20 px-3 py-2 rounded-xl text-white text-xs font-medium backdrop-blur-sm transition active:scale-95 flex items-center gap-1.5" title="ดูไทม์ไลน์">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25zM6.75 12h.008v.008H6.75V12zm0 3h.008v.008H6.75V15zm0 3h.008v.008H6.75V18z"/></svg>
+                        <span class="hidden sm:inline">ไทม์ไลน์</span>
+                    </button>
                     <button onclick="event.stopPropagation(); toggleAdminModal();" class="bg-white/10 hover:bg-white/20 border border-white/20 px-3 py-2 rounded-xl text-white text-xs font-medium backdrop-blur-sm transition active:scale-95 flex items-center gap-1.5" title="จัดการระบบ">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.34 15.84c-.688-.06-1.386-.09-2.09-.09H7.5a4.5 4.5 0 110-9h.75c.704 0 1.402-.03 2.09-.09m0 9.18c.253.962.584 1.892.985 2.783.247.55.06 1.21-.463 1.511l-.657.38c-.551.318-1.26.117-1.527-.461a20.845 20.845 0 01-1.44-4.282m3.102.069a18.03 18.03 0 01-.59-4.59c0-1.586.205-3.124.59-4.59m0 9.18a23.848 23.848 0 018.835 2.535M10.34 6.66a23.847 23.847 0 008.835-2.535m0 0A23.74 23.74 0 0018.795 3m.38 1.125a23.91 23.91 0 011.014 5.395m-1.014-8.81c-2.28 1.093-4.686 1.894-7.185 2.399m-8.333-.002A23.868 23.868 0 004.5 5.25m0 0C2.923 5.438 1.42 5.766 0 6.223M4.5 5.25v2.86m0-2.86v-2.86m0 0c1.542-.456 3.14-.827 4.792-1.09m-4.792 1.09L3.5 4.5m1.002-.676c1.233-.356 2.502-.653 3.805-.884m-3.805.884c.594.137 1.18.293 1.76.468" /></svg>
                         <span class="hidden sm:inline">ตั้งค่า</span>
@@ -202,6 +206,28 @@
             </div>
         </div>
     </div>
+    <!-- Timeline Modal -->
+    <div id="timeline-modal" class="hidden fixed inset-0 z-[2000] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 transition-all duration-300 opacity-0" onclick="toggleTimelineModal()">
+        <!-- หยุด Event ไม่ให้ทะลุไปปิด Modal เมื่อคลิกที่ตัวหน้าต่าง -->
+        <div class="bg-slate-50 w-full max-w-md h-[85vh] rounded-2xl shadow-2xl flex flex-col transform transition-all scale-95 duration-300" id="timeline-container" onclick="event.stopPropagation()">
+            
+            <!-- Header -->
+            <div class="px-6 py-4 bg-gradient-to-r from-premium-dark to-premium-light border-b border-slate-100 flex justify-between items-center rounded-t-2xl flex-shrink-0">
+                <h3 class="text-base font-semibold text-white flex items-center gap-2.5">
+                    สถานะรถรับส่ง (Timeline)
+                </h3>
+                <button onclick="toggleTimelineModal()" class="text-white/80 hover:text-white transition active:scale-95 bg-white/10 p-1.5 rounded-lg">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+                </button>
+            </div>
+
+            <!-- Body (Iframe) -->
+            <div class="flex-1 w-full p-0 overflow-hidden rounded-b-2xl bg-gray-100">
+                <iframe src="index.html" class="w-full h-full border-0 rounded-b-2xl"></iframe>
+            </div>
+            
+        </div>
+    </div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -259,7 +285,31 @@
                 renderAdminUI();
             }
         });
-
+        // ฟังก์ชันสำหรับ เปิด/ปิด หน้าต่างไทม์ไลน์
+        function toggleTimelineModal() {
+            const modal = document.getElementById('timeline-modal');
+            const container = document.getElementById('timeline-container');
+            
+            if (modal.classList.contains('hidden')) {
+                // เปิด
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+                setTimeout(() => {
+                    modal.classList.remove('opacity-0');
+                    container.classList.remove('scale-95');
+                    container.classList.add('scale-100');
+                }, 10);
+            } else {
+                // ปิด
+                modal.classList.add('opacity-0');
+                container.classList.remove('scale-100');
+                container.classList.add('scale-95');
+                setTimeout(() => {
+                    modal.classList.remove('flex');
+                    modal.classList.add('hidden');
+                }, 300);
+            }
+        }
         // 5. Monitor Functions
         function togglePanel() {
             document.getElementById('mainPanel').classList.toggle('collapsed');
@@ -322,35 +372,52 @@
         }
 
         function trackShuttle(id) {
-            db.ref('shuttles/' + id).on('value', (snap) => {
-                const data = snap.val();
-                const elStatus = document.getElementById(`status-${id}`);
-                const elLed = document.getElementById(`led-${id}`);
-                const v = vans[id];
+        db.ref('shuttles/' + id).on('value', (snap) => {
+            const data = snap.val();
+            const elStatus = document.getElementById(`status-${id}`);
+            const elLed = document.getElementById(`led-${id}`);
+            const v = vans[id];
 
-                if (data && data.active) {
-                    const pos = [data.lat, data.lng];
-                    if (!v.marker) v.marker = L.marker(pos, {icon: v.icon}).addTo(mainMap).bindPopup(`<b style="font-family:'Kanit'; text-sm">อัปเดตล่าสุด: ${id === 'van1' ? 'รถคันที่ 1' : 'รถคันที่ 2'}</b>`);
-                    else v.marker.setLatLng(pos);
-                    v.path.addLatLng(pos);
+            if (data && data.active) {
+                const pos = [data.lat, data.lng];
 
-                    elStatus.innerText = "กำลังวิ่ง";
-                    elStatus.classList.replace('text-slate-500', 'text-emerald-600');
-                    elLed.classList.replace('off', 'on');
-                } else {
-                    elStatus.innerText = "ออฟไลน์";
-                    elStatus.classList.replace('text-emerald-600', 'text-slate-500');
-                    elLed.classList.replace('on', 'off');
+                // ─── ระบบรีเซ็ตเส้นทางเมื่อถึงจุดที่ 0 ───
+                if (currentStations && currentStations[0]) {
+                    const station0Pos = [currentStations[0].lat, currentStations[0].lng];
+                    
+                    // mainMap.distance จะคำนวณระยะห่างระหว่างจุด 2 จุด ออกมาเป็นหน่วย "เมตร"
+                    const distance = mainMap.distance(pos, station0Pos); 
+                    
+                    // ถ้ารถอยู่ห่างจากจุดที่ 0 น้อยกว่าหรือเท่ากับ 30 เมตร ให้รีเซ็ตเส้นทางเริ่มต้นใหม่
+                    // (สามารถปรับตัวเลข 30 เพิ่มหรือลดได้ตามความแม่นยำของ GPS)
+                    if (distance <= 30) {
+                        v.path.setLatLngs([]); 
+                    }
                 }
-            });
-        }
+                // ────────────────────────────────────────
+
+                if (!v.marker) v.marker = L.marker(pos, {icon: v.icon}).addTo(mainMap).bindPopup(`<b style="font-family:'Kanit'; text-sm">อัปเดตล่าสุด: ${id === 'van1' ? 'รถคันที่ 1' : 'รถคันที่ 2'}</b>`);
+                else v.marker.setLatLng(pos);
+                v.path.addLatLng(pos);
+
+                elStatus.innerText = "กำลังวิ่ง";
+                elStatus.classList.replace('text-slate-500', 'text-emerald-600');
+                elLed.classList.replace('off', 'on');
+            } else {
+                elStatus.innerText = "ออฟไลน์";
+                elStatus.classList.replace('text-emerald-600', 'text-slate-500');
+                elLed.classList.replace('on', 'off');
+            }
+        });
+        
+    }
         trackShuttle('van1');
         trackShuttle('van2');
 
-        setInterval(() => {
-            const m = new Date().getMinutes();
-            if (m === 0 || m === 30) { vans.van1.path.setLatLngs([]); vans.van2.path.setLatLngs([]); }
-        }, 60000);
+        // setInterval(() => {
+        //     const m = new Date().getMinutes();
+        //     if (m === 0 || m === 30) { vans.van1.path.setLatLngs([]); vans.van2.path.setLatLngs([]); }
+        // }, 60000);
 
         // ---------------------------------------------------------
         // 6. Admin & UI Management
