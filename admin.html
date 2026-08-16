@@ -674,7 +674,7 @@
 
             if (!editMapInstance) {
                 editMapInstance = L.map('modal-map').setView([station.lat, station.lng], 16);
-                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(editMapInstance);
+                L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}').addTo(editMapInstance);
                 
                 editMarker = L.marker([station.lat, station.lng], { draggable: true }).addTo(editMapInstance);
                 editMarker.bindPopup("<b class='font-sans text-xs'>ลากหมุดนี้เพื่อย้ายพิกัดป้าย</b>").openPopup();
